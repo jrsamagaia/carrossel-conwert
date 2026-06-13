@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Carrossel Conwert",
+  "description": "App para gerar carrosséis com integração ao GenAI.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

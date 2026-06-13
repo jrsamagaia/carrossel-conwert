@@ -679,10 +679,18 @@ Retorne APENAS um JSON puro no formato:
     let logoHeight = isFullImage && loadedLogo ? 160 : 0;
     let titleH = titleLines.length * 105;
     let bodyH = bodyLines.length * 62;
-    let detailsH =
-      slide.details && slide.details.length > 0 && !isFullImage
-        ? slide.details.length * 120 + 30
-        : 0;
+    let detailsH = 0;
+    if (slide.details && slide.details.length > 0 && !isFullImage) {
+      ctx.save();
+      ctx.font = `600 22px 'Inter', sans-serif`;
+      slide.details.forEach((det: string) => {
+        const lines = getLines(ctx, det, 700);
+        const cardH = Math.max(100, (lines.length * 34) + 40);
+        detailsH += cardH + 20;
+      });
+      ctx.restore();
+      detailsH += 10;
+    }
 
     let predictedCardH = 0;
     let loadedCardImg = null;
@@ -803,27 +811,38 @@ Retorne APENAS um JSON puro no formato:
     if (slide.details && slide.details.length > 0 && !isFullImage) {
       slide.details.forEach((det: any, i: number) => {
         ctx.save();
+        ctx.font = `600 22px 'Inter', sans-serif`;
+        const lines = getLines(ctx, det, 700); // 920 card width - 100 left padding - 60 right padding - safety margin
+        const lineHeight = 32;
+        const cardH = Math.max(100, (lines.length * lineHeight) + 40);
+
         ctx.fillStyle = isLight ? "rgba(255,255,255, 0.8)" : "rgba(0,0,0, 0.2)";
         ctx.strokeStyle = isLight
           ? "rgba(0,0,0, 0.05)"
           : "rgba(255,255,255,0.05)";
         ctx.lineWidth = 2;
-        roundRect(ctx, 80, contentY, 920, 100, 20, true, true);
+        roundRect(ctx, 80, contentY, 920, cardH, 20, true, true);
 
+        const numberTop = contentY + (cardH / 2) - 24;
         ctx.fillStyle = accent;
-        roundRect(ctx, 100, contentY + 26, 48, 48, 12, true, false);
+        roundRect(ctx, 100, numberTop, 48, 48, 12, true, false);
 
         ctx.fillStyle = isLight ? WERT_DARK : WERT_WHITE;
         ctx.font = `bold 28px 'Inter', sans-serif`;
         ctx.textAlign = "center";
-        ctx.fillText((i + 1).toString(), 124, contentY + 62);
+        ctx.fillText((i + 1).toString(), 124, numberTop + 34);
 
         ctx.textAlign = "left";
-        ctx.font = `600 30px 'Inter', sans-serif`;
+        ctx.font = `600 22px 'Inter', sans-serif`;
         ctx.fillStyle = isLight ? WERT_DARK : "#ffffff";
-        ctx.fillText(det, 180, contentY + 60);
+        
+        const textStartY = contentY + (cardH / 2) - ((lines.length * lineHeight) / 2) + 24;
+        lines.forEach((line: string, lineIndex: number) => {
+          ctx.fillText(line, 180, textStartY + (lineIndex * lineHeight));
+        });
+        
         ctx.restore();
-        contentY += 120;
+        contentY += cardH + 20;
       });
     }
 
@@ -964,7 +983,7 @@ Retorne APENAS um JSON puro no formato:
       }
 
       const content = await zip.generateAsync({ type: "blob" });
-      (window as any).saveAs(content, "Carrossel_WERT.zip");
+      (window as any).saveAs(content, "Carrossel_Conwert.zip");
     } catch (e: any) {
       showError(e.message || "Erro no ZIP.");
     } finally {
@@ -1282,7 +1301,7 @@ Retorne APENAS um JSON puro no formato:
             </div>
             <div>
               <h1 className="text-sm font-black tracking-wide leading-tight">
-                Carrossel WERT
+                Carrossel Conwert
               </h1>
               <p className={`text-[10px] ${t.mutedText} font-bold uppercase`}>
                 {wertProfile.companyName}
